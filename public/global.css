@@ -1,0 +1,254 @@
+/* global.css: plain CSS for the whole site.
+   Tailwind classes in index.html do most of the styling.
+   Careful: plain CSS here beats Tailwind classes, so keep this file small. */
+
+/* ---------- Brand shapes (same as the Merch Shop) ---------- */
+.dots {
+  background-image:
+    radial-gradient(rgb(255 255 255 / 0.28) 1.6px, transparent 1.8px),
+    linear-gradient(135deg, #f6921e, #ec1c24);
+  background-size: 14px 14px, 100% 100%;
+}
+
+.angle-cut {
+  clip-path: polygon(22% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.chevron-slide {
+  animation: slide 2.4s ease-in-out infinite;
+}
+
+@keyframes slide {
+  50% {
+    transform: translateX(14px);
+  }
+}
+
+/* ---------- Form pieces and buttons ---------- */
+.field {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+  border: 2px solid rgb(12 35 64 / 0.15);
+  border-radius: 0.6rem;
+  padding: 0.6rem 0.8rem;
+  background: #ffffff;
+}
+
+.field:focus {
+  outline: none;
+  border-color: #f57e20;
+}
+
+.btn-main,
+.btn-ghost,
+.btn-danger {
+  border-radius: 0.6rem;
+  padding: 0.6rem 1rem;
+  font-family: "Barlow Condensed", "Barlow", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.btn-main {
+  color: #ffffff;
+  background: linear-gradient(90deg, #f6921e, #ec1c24);
+}
+
+.btn-ghost {
+  color: #0c2340;
+  background: #ffffff;
+  border: 2px solid rgb(12 35 64 / 0.2);
+}
+
+.btn-danger {
+  color: #ffffff;
+  background: #c0392b;
+}
+
+.btn-main:hover,
+.btn-ghost:hover,
+.btn-danger:hover {
+  transform: translateY(-1px);
+}
+
+.btn-tool {
+  border-radius: 0.5rem;
+  border: 1px solid rgb(12 35 64 / 0.2);
+  padding: 0.3rem 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-tool:hover {
+  background: #fdf8f3;
+}
+
+/* Gray "not built yet" lines under a form or a list. Empty = hidden. */
+.note {
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.note:empty {
+  display: none;
+}
+
+/* ---------- Status dot and round avatars ---------- */
+.status-dot {
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 999px;
+}
+
+.avatar {
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: #ffffff;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: #0c2340;
+}
+
+/* ---------- Chat list ---------- */
+.chat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 0.75rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.chat-item:hover {
+  background: #fdf8f3;
+}
+
+.chat-item.active {
+  background: rgb(245 126 32 / 0.14);
+}
+
+.unread-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 999px;
+  background: #f57e20;
+}
+
+/* ---------- Message bubbles ---------- */
+.msg {
+  display: flex;
+  flex-direction: column;
+  max-width: 78%;
+}
+
+.msg.mine {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.msg .bubble {
+  padding: 0.5rem 0.85rem;
+  border-radius: 1.1rem;
+  background: #ffffff;
+  border: 1px solid rgb(12 35 64 / 0.08);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.msg.mine .bubble {
+  color: #ffffff;
+  border: none;
+  background: linear-gradient(135deg, #f6921e, #ec1c24);
+}
+
+.msg .who {
+  margin: 0.6rem 0 0.15rem 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.msg .time {
+  margin: 0.1rem 0.6rem 0;
+  font-size: 0.7rem;
+  color: rgb(12 35 64 / 0.45);
+}
+
+.msg.system {
+  align-self: center;
+  max-width: 90%;
+  margin: 0.5rem 0;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: rgb(12 35 64 / 0.55);
+}
+
+/* ---------- Pop-ups ---------- */
+.pop {
+  margin: auto;
+  width: min(26rem, 92vw);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  color: #0c2340;
+  box-shadow: 0 20px 50px rgb(12 35 64 / 0.35);
+}
+
+.pop::backdrop {
+  background: rgb(12 35 64 / 0.55);
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.45rem 0.5rem;
+  border-radius: 0.6rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.person:hover {
+  background: #fdf8f3;
+}
+
+/* ---------- Phones and tablets (up to 1023px): show the list OR the chat ---------- */
+#sidebar,
+#chat-panel {
+  display: flex;
+}
+
+/* Computers (1024px and up): chats on the left, the open chat on the right. */
+@media (min-width: 1024px) {
+  #app-view:not(.hidden) {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+  }
+}
+
+@media (max-width: 1023px) {
+  #app-view[data-open="list"] #chat-panel {
+    display: none;
+  }
+
+  #app-view[data-open="chat"] #sidebar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron-slide {
+    animation: none;
+  }
+}

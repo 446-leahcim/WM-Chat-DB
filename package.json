@@ -1,0 +1,25 @@
+{
+  "name": "wm-chat-starter",
+  "version": "1.0.0",
+  "description": "West-MEC Coding Year 2: a direct message and group chat app with Node, Express, and MongoDB",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "check-mongodb": "node setup/check-mongodb.js",
+    "get-mongodb": "node setup/get-mongodb.js"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "config": {
+    "mongodbMemoryServer": {
+      "disablePostinstall": "1"
+    }
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "mongodb": "^7.7.0",
+    "mongodb-memory-server": "^11.3.0"
+  }
+}

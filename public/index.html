@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WM Chat</title>
+  <link rel="icon" href="./images/wm-coding-badge.png">
+
+  <!-- Fonts: Barlow Condensed (headings) and Barlow (text), close to the West-MEC brand fonts. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;1,700;1,800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS (Play CDN): turns the class names below into real CSS while the page runs. -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.3"></script>
+
+  <!-- West-MEC colors and fonts. @theme turns --color-navy into classes like bg-navy and text-navy. -->
+  <style type="text/tailwindcss">
+    @theme {
+      --color-navy: #0c2340;
+      --color-navy-light: #163a63;
+      --color-orange: #f57e20;
+      --color-sunrise: #f6921e;
+      --color-flame: #ec1c24;
+      --color-cream: #fdf8f3;
+      --font-sans: "Barlow", system-ui, sans-serif;
+      --font-display: "Barlow Condensed", "Barlow", sans-serif;
+    }
+  </style>
+
+  <link rel="stylesheet" href="./global.css">
+
+  <script src="./api.js" defer></script>
+  <script src="./chat.js" defer></script>
+</head>
+<body class="bg-cream text-navy h-dvh flex flex-col overflow-hidden">
+
+  <!-- ===== Top bar ===== -->
+  <header class="shrink-0 bg-navy text-white shadow-lg z-20">
+    <div class="px-4 py-2.5 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <img src="./images/wm-coding-badge.png" alt="West-MEC Coding" class="h-10 w-10 shrink-0">
+        <span class="font-display text-2xl font-extrabold italic uppercase leading-none tracking-wide">
+          WM <span class="bg-linear-to-r from-sunrise to-flame bg-clip-text text-transparent">Chat</span>
+        </span>
+      </div>
+      <div id="me-box" class="hidden items-center gap-2">
+        <span id="me-avatar" class="avatar h-9 w-9 text-sm"></span>
+        <span class="hidden sm:block leading-tight">
+          <span id="me-name" class="block font-semibold"></span>
+          <span id="me-username" class="block text-xs text-white/60"></span>
+        </span>
+        <button id="sign-out" type="button" class="ml-1 rounded-full bg-white/10 px-3 py-1.5 text-sm font-semibold hover:bg-white/20">Sign out</button>
+      </div>
+    </div>
+    <div class="h-1.5 bg-linear-to-r from-sunrise via-orange to-flame"></div>
+  </header>
+
+  <!-- ===== Status line: green when chatDB is connected ===== -->
+  <div class="shrink-0 bg-white border-b border-navy/10 px-4 py-1.5 flex items-center justify-between gap-3 text-sm">
+    <p id="status" class="flex items-center gap-2 text-navy/60">
+      <span class="status-dot bg-gray-400"></span> Checking the database...
+    </p>
+    <button id="reset" type="button" class="shrink-0 rounded-md border border-navy/20 px-2.5 py-1 text-xs font-semibold hover:bg-cream">Reset chat</button>
+  </div>
+
+  <!-- ===== Messages from the server: red = an error, gray = not built yet ===== -->
+  <p id="error" class="hidden shrink-0 bg-red-50 border-b border-red-200 px-4 py-2 text-sm font-semibold text-red-700"></p>
+  <p id="notice" class="hidden shrink-0 bg-gray-100 border-b border-gray-200 px-4 py-2 text-sm text-gray-600"></p>
+
+  <main class="flex-1 min-h-0">
+
+    <!-- ===== Sign in / Sign up (before you're signed in) ===== -->
+    <section id="signin-view" class="h-full overflow-y-auto">
+      <div class="relative overflow-hidden bg-navy text-white">
+        <div class="angle-cut dots absolute inset-y-0 right-0 hidden w-2/5 bg-linear-to-br from-sunrise to-flame lg:block"></div>
+        <div class="relative max-w-5xl mx-auto px-4 py-8 lg:py-12">
+          <p class="mb-3 inline-block -skew-x-12 bg-orange px-3 py-1 font-display text-sm font-bold uppercase tracking-widest text-navy">
+            <span class="inline-block skew-x-12">Coding · Year 2</span>
+          </p>
+          <h1 class="font-display text-5xl font-extrabold italic uppercase leading-[0.9] lg:text-7xl">
+            Talk it out.<br>
+            <span class="bg-linear-to-r from-sunrise to-flame bg-clip-text text-transparent">Code forward.</span>
+          </h1>
+          <p class="mt-3 max-w-md text-lg text-white/80">Direct messages and group chats. Every message lives in MongoDB, so every browser sees the same conversation.</p>
+        </div>
+      </div>
+
+      <div class="max-w-5xl mx-auto px-4 py-8 grid gap-6 lg:grid-cols-2">
+        <form id="signin-form" class="rounded-2xl bg-white p-6 shadow-lg shadow-navy/5 border border-navy/10">
+          <h2 class="font-display text-3xl font-bold italic uppercase">Sign in</h2>
+          <p class="mt-1 text-navy/60">Already have a username? Type it in.</p>
+          <label for="signin-username" class="mt-4 block text-sm font-semibold">Username</label>
+          <input id="signin-username" name="username" autocomplete="off" class="field" placeholder="alan">
+          <button type="submit" class="btn-main mt-4 w-full">Sign in »</button>
+          <p id="signin-note" class="note"></p>
+        </form>
+
+        <form id="signup-form" class="rounded-2xl bg-white p-6 shadow-lg shadow-navy/5 border border-navy/10">
+          <h2 class="font-display text-3xl font-bold italic uppercase">Sign up</h2>
+          <p class="mt-1 text-navy/60">3 to 20 lowercase letters, numbers, or dashes.</p>
+          <label for="signup-username" class="mt-4 block text-sm font-semibold">Username</label>
+          <input id="signup-username" name="username" autocomplete="off" class="field" placeholder="maria-g">
+          <label for="signup-display" class="mt-3 block text-sm font-semibold">Display name <span class="font-normal text-navy/50">(what people see)</span></label>
+          <input id="signup-display" name="displayName" autocomplete="off" class="field" placeholder="Maria G.">
+          <button type="submit" class="btn-main mt-4 w-full">Make my account »</button>
+          <p id="signup-note" class="note"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- ===== The chat app (after you're signed in) ===== -->
+    <section id="app-view" class="hidden h-full" data-open="list">
+
+      <!-- Left: your chats -->
+      <aside id="sidebar" class="h-full min-h-0 flex-col bg-white border-r border-navy/10">
+        <div class="p-3 grid grid-cols-2 gap-2 border-b border-navy/10">
+          <button id="new-dm" type="button" class="btn-main text-sm">+ Message</button>
+          <button id="new-group" type="button" class="btn-ghost text-sm">+ Group</button>
+        </div>
+        <h2 class="px-4 pt-3 pb-1 font-display text-sm font-bold uppercase tracking-widest text-navy/50">Chats</h2>
+        <p id="chats-note" class="note px-4"></p>
+        <ul id="chat-list" class="flex-1 min-h-0 overflow-y-auto px-2 pb-3"></ul>
+      </aside>
+
+      <!-- Right: the open chat -->
+      <section id="chat-panel" class="h-full min-h-0 flex-col bg-cream">
+        <div id="chat-empty" class="flex-1 grid place-items-center p-8 text-center">
+          <div>
+            <img src="./images/chevrons.png" alt="" class="chevron-slide mx-auto h-14 opacity-70">
+            <p class="mt-4 font-display text-3xl font-bold italic uppercase">Pick a chat</p>
+            <p class="text-navy/60">Or start one with <b>+ Message</b> or <b>+ Group</b>.</p>
+          </div>
+        </div>
+
+        <div id="chat-open" class="hidden flex-1 min-h-0 flex-col">
+          <div class="shrink-0 bg-white border-b border-navy/10 px-3 py-2 flex items-center gap-3">
+            <button id="back" type="button" class="lg:hidden rounded-full px-2 py-1 text-2xl leading-none hover:bg-cream" aria-label="Back to chats">‹</button>
+            <span id="chat-avatar" class="avatar h-10 w-10 shrink-0"></span>
+            <div class="min-w-0 flex-1">
+              <h2 id="chat-title" class="truncate font-display text-2xl font-bold italic uppercase leading-tight"></h2>
+              <p id="chat-members" class="truncate text-xs text-navy/60"></p>
+            </div>
+            <div id="group-tools" class="hidden shrink-0 gap-1">
+              <button id="add-member" type="button" class="btn-tool">+ Add</button>
+              <button id="rename" type="button" class="btn-tool">Rename</button>
+              <button id="leave" type="button" class="btn-tool text-red-700">Leave</button>
+            </div>
+          </div>
+
+          <p id="messages-note" class="note px-4"></p>
+          <ol id="messages" class="flex-1 min-h-0 overflow-y-auto px-3 py-4 flex flex-col gap-1"></ol>
+
+          <form id="composer" class="shrink-0 bg-white border-t border-navy/10 p-3 flex gap-2">
+            <input id="composer-text" autocomplete="off" maxlength="600" class="field mt-0 flex-1" placeholder="Type a message...">
+            <button type="submit" class="btn-main px-5">Send</button>
+          </form>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <!-- ===== Pop-up: start a direct message ===== -->
+  <dialog id="dm-dialog" class="pop">
+    <form method="dialog">
+      <h2 class="font-display text-3xl font-bold italic uppercase">New message</h2>
+      <p class="text-navy/60">Who do you want to talk to?</p>
+      <p id="dm-note" class="note"></p>
+      <ul id="dm-people" class="mt-3 max-h-80 overflow-y-auto"></ul>
+      <button value="cancel" class="btn-ghost mt-4 w-full">Cancel</button>
+    </form>
+  </dialog>
+
+  <!-- ===== Pop-up: start a group ===== -->
+  <dialog id="group-dialog" class="pop">
+    <form id="group-form">
+      <h2 class="font-display text-3xl font-bold italic uppercase">New group</h2>
+      <label for="group-name" class="mt-2 block text-sm font-semibold">Group name</label>
+      <input id="group-name" autocomplete="off" class="field" placeholder="Study Group">
+      <p class="mt-3 text-sm font-semibold">Who's in it?</p>
+      <p id="group-note" class="note"></p>
+      <ul id="group-people" class="mt-1 max-h-64 overflow-y-auto"></ul>
+      <div class="mt-4 grid grid-cols-2 gap-2">
+        <button type="button" id="group-cancel" class="btn-ghost">Cancel</button>
+        <button type="submit" class="btn-main">Start group</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ===== Pop-up: add someone to this group ===== -->
+  <dialog id="add-dialog" class="pop">
+    <form method="dialog">
+      <h2 class="font-display text-3xl font-bold italic uppercase">Add people</h2>
+      <p class="text-navy/60">Pick someone to add to this group.</p>
+      <ul id="add-people" class="mt-3 max-h-80 overflow-y-auto"></ul>
+      <button value="cancel" class="btn-ghost mt-4 w-full">Done</button>
+    </form>
+  </dialog>
+
+  <!-- ===== Pop-up: rename this group ===== -->
+  <dialog id="rename-dialog" class="pop">
+    <form id="rename-form">
+      <h2 class="font-display text-3xl font-bold italic uppercase">Rename group</h2>
+      <input id="rename-name" autocomplete="off" class="field">
+      <div class="mt-4 grid grid-cols-2 gap-2">
+        <button type="button" id="rename-cancel" class="btn-ghost">Cancel</button>
+        <button type="submit" class="btn-main">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ===== Pop-up: leave this group? ===== -->
+  <dialog id="leave-dialog" class="pop">
+    <form id="leave-form">
+      <h2 class="font-display text-3xl font-bold italic uppercase">Leave group?</h2>
+      <p class="text-navy/60">You won't see its messages anymore. If you're the last one, the group and its messages are deleted.</p>
+      <div class="mt-4 grid grid-cols-2 gap-2">
+        <button type="button" id="leave-cancel" class="btn-ghost">Stay</button>
+        <button type="submit" class="btn-danger">Leave</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>
